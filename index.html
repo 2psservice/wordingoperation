@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wording Operation Management</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- SheetJS (XLSX) for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Google Fonts (Sarabun/Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Sticky positioning helpers */
+        .sticky-left-0 { position: sticky; left: 0; z-index: 20; }
+        .sticky-left-first { position: sticky; left: 2.5rem; z-index: 20; }
+        @media (min-width: 768px) {
+            .sticky-left-first { left: 3rem; }
+        }
+        .sticky-right-0 { position: sticky; right: 0; z-index: 20; }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .fade-text { transition: opacity 0.2s; }
+        .opacity-0 { opacity: 0; }
+        
+        /* Auto-save indicator */
+        .saving-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .saving-indicator.show {
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: visible !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-2 md:p-4 text-gray-800 pb-20">
+
+    <div class="max-w-[100%] md:max-w-[98%] mx-auto space-y-4 md:space-y-6">
+        
+        <!-- Header Section -->
+        <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+            <div class="w-full xl:w-auto">
+                <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2 md:mb-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="file-text" class="text-indigo-600 w-6 h-6 md:w-8 md:h-8 inline-block mr-1"></i>
+                        <span class="text-lg md:text-2xl font-bold truncate">Wording Operation</span>
+                    </h1>
+                    
+                    <!-- Month Navigation -->
+                    <div class="flex items-center bg-gray-100 rounded-lg p-1 self-start md:self-auto">
+                        <button onclick="window.changeMonth(-1)" class="p-1 md:p-2 hover:bg-white rounded-md shadow-sm transition-all text-gray-600">
+                            <i data-lucide="chevron-left" class="w-4 h-4 md:w-5 md:h-5"></i>
+                        </button>
+                        <div class="px-3 md:px-6 min-w-[140px] md:min-w-[180px] text-center">
+                            <span id="display-month" class="text-sm md:text-base font-bold text-gray-800 fade-text">loading...</span>
+                            <div id="display-year" class="text-[10px] md:text-xs text-gray-500 fade-text">loading...</div>
+                        </div>
+                        <button onclick="window.changeMonth(1)" class="p-1 md:p-2 hover:bg-white rounded-md shadow-sm transition-all text-gray-600">
+                            <i data-lucide="chevron-right" class="w-4 h-4 md:w-5 md:h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <p id="mode-description" class="text-gray-500 text-xs md:text-sm mt-2 md:ml-10 hidden md:block">
+                    โหมดบันทึกข้อมูล: กรอกยอดงาน ครึ่งเดือนแรก (1-15) และ ครึ่งเดือนหลัง (16-สิ้นเดือน)
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2 w-full xl:w-auto justify-end items-center">
+                
+                <!-- Read Only Badge -->
+                <div id="badge-readonly" class="flex items-center text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200 mr-2">
+                    <i data-lucide="lock" class="w-3 h-3 mr-1"></i>
+                    View Only
+                </div>
+                
+                <!-- Auto Save Badge (Admin Only) -->
+                <div id="badge-autosave" class="hidden flex items-center text-xs text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 mr-2">
+                    <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
+                    Auto Save On
+                </div>
+
+                <!-- Admin Tools (Hidden by default) -->
+                <button id="btn-toggle-mode" onclick="window.toggleMode()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors shadow-sm text-sm">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span id="btn-mode-text">Config</span>
+                </button>
+
+                 <button id="btn-add-item" onclick="window.addNewItem()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors shadow-sm text-sm">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>เพิ่ม</span>
+                </button>
+
+                <div class="w-px h-8 bg-gray-300 mx-1 hidden xl:block"></div>
+
+                <!-- Export Excel Button -->
+                <button onclick="window.exportToExcel()" class="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-green-600 text-white border border-green-600 rounded-lg hover:bg-green-700 transition-colors text-sm shadow-sm">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                    <span class="hidden md:inline">Export Excel</span>
+                    <span class="md:hidden">Excel</span>
+                </button>
+
+                <!-- Login Button -->
+                <button id="btn-login" onclick="window.toggleLoginModal()" class="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-sm text-sm ml-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span>Login</span>
+                </button>
+                
+                <!-- Logout Button (Hidden) -->
+                <button id="btn-logout" onclick="window.logout()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors shadow-sm text-sm ml-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-auto relative h-[calc(100vh-220px)] md:h-[calc(100vh-200px)]">
+            <table class="min-w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+                    <tr>
+                        <th class="px-2 md:px-4 py-3 md:py-4 w-10 md:w-12 text-center sticky-left-0 bg-gray-100 z-30 border-r border-gray-200 text-xs md:text-sm">#</th>
+                        <th class="px-2 md:px-4 py-3 md:py-4 min-w-[150px] md:min-w-[250px] sticky-left-first bg-gray-100 z-30 border-r border-gray-200 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm">Description</th>
+                        <th class="hidden md:table-cell px-4 py-4 min-w-[200px]">รายละเอียด</th>
+                        
+                        <!-- Location Headers -->
+                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-blue-50 text-blue-800 border-l border-blue-100">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs md:text-sm font-bold">RAYONG</span>
+                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-green-50 text-green-800 border-l border-green-100">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs md:text-sm font-bold">Soi 5</span>
+                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-purple-50 text-purple-800 border-l border-purple-100">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs md:text-sm font-bold">Whale</span>
+                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-orange-50 text-orange-800 border-l border-orange-100">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs md:text-sm font-bold">NYB</span>
+                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-pink-50 text-pink-800 border-l border-pink-100">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs md:text-sm font-bold">MHP2</span>
+                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                                </div>
+                            </div>
+                        </th>
+                        <th id="header-row-total" class="px-2 md:px-4 py-3 md:py-4 w-16 md:w-24 text-center bg-gray-200 text-gray-800 font-bold sticky-right-0 z-30 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] text-xs md:text-sm">
+                            Total
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
+                <tfoot id="table-footer" class="bg-gray-100 font-bold text-gray-800 border-t-2 border-gray-300 sticky bottom-0 z-30 shadow-[0_-5px_10px_-5px_rgba(0,0,0,0.1)]"></tfoot>
+            </table>
+        </div>
+
+        <div class="flex flex-col md:flex-row flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-gray-600 bg-white p-3 md:p-4 rounded-lg border border-gray-200">
+             <div class="flex items-center justify-between md:justify-start w-full md:w-auto">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 md:w-4 md:h-4 border border-gray-300 rounded bg-white shadow-sm"></div>
+                    <span>ช่องว่าง: กรอกตัวเลข</span>
+                </div>
+                <div class="flex items-center gap-2 md:ml-4">
+                    <span class="text-gray-400 text-lg leading-none">·</span>
+                    <span>ไม่มีบริการ</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 md:ml-auto border-t md:border-t-0 pt-2 md:pt-0 mt-2 md:mt-0">
+                <i data-lucide="cloud" class="w-3 h-3 md:w-4 md:h-4 text-green-500"></i>
+                <span id="status-text" class="font-semibold text-gray-500">View Only Mode</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Auto-save Indicator -->
+    <div id="saving-indicator" class="saving-indicator">
+        <div class="flex items-center gap-2">
+            <div class="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></div>
+            <span>Saving...</span>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="window.toggleLoginModal()"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto transform transition-all scale-95 duration-200">
+            <div class="modal-content py-4 text-left px-6">
+                <!--Title-->
+                <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                    <p class="text-xl font-bold text-gray-800">ผู้ดูแลระบบ (Admin Login)</p>
+                    <div class="cursor-pointer z-50 p-2" onclick="window.toggleLoginModal()">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                </div>
+
+                <!--Body-->
+                <div class="my-5 space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="username" type="text" placeholder="Username">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="password" type="password" placeholder="******************">
+                        <p id="login-error" class="text-red-500 text-xs italic hidden">Username หรือ Password ไม่ถูกต้อง</p>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="flex justify-end pt-2">
+                    <button onclick="window.toggleLoginModal()" class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2">ยกเลิก</button>
+                    <button onclick="window.performLogin()" class="px-4 bg-indigo-600 p-3 rounded-lg text-white hover:bg-indigo-700">เข้าสู่ระบบ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic Type Module -->
+    <script type="module">
+        // Import Firebase Functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5jB2UUDzFLWxGDshhuK29ZMxg8hT1FFI",
+            authDomain: "lokvinn-26059.firebaseapp.com",
+            databaseURL: "https://lokvinn-26059-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "lokvinn-26059",
+            storageBucket: "lokvinn-26059.firebasestorage.app",
+            messagingSenderId: "663248392136",
+            appId: "1:663248392136:web:72860a40201b2c3e8c3afd",
+            measurementId: "G-J6XEZB0M9V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const analytics = getAnalytics(app);
+
+        // --- GLOBAL STATE ---
+        const locations = [
+            { key: 'rayong', label: 'RAYONG', color: 'blue' },
+            { key: 'soi5', label: 'Soi 5', color: 'green' },
+            { key: 'whale', label: 'Whale', color: 'purple' },
+            { key: 'nyb', label: 'NYB', color: 'orange' },
+            { key: 'mhp2', label: 'MHP2', color: 'pink' }
+        ];
+
+        let isConfigMode = false;
+        let isLoggedIn = false; // Login State
+        let currentDate = new Date();
+        let saveTimeoutObj = {}; 
+
+        let data = []; // Initialized in loadData
+        let monthlyData = {};
+
+        // --- AUTH FUNCTIONS ---
+        
+        window.toggleLoginModal = function() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+            
+            // Clear inputs
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        window.performLogin = function() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            if (user === 'admin' && pass === 'admin') {
+                isLoggedIn = true;
+                window.toggleLoginModal();
+                updateUIState();
+                renderTable(); // Re-render to enable inputs
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        window.logout = function() {
+            isLoggedIn = false;
+            // Force exit config mode if active
+            if (isConfigMode) {
+                window.toggleMode();
+            }
+            updateUIState();
+            renderTable(); // Re-render to disable inputs
+        }
+
+        function updateUIState() {
+            const btnLogin = document.getElementById('btn-login');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnConfig = document.getElementById('btn-toggle-mode');
+            const badgeReadOnly = document.getElementById('badge-readonly');
+            const badgeAutoSave = document.getElementById('badge-autosave');
+            const statusText = document.getElementById('status-text');
+
+            if (isLoggedIn) {
+                // Admin Mode
+                btnLogin.classList.add('hidden');
+                btnLogout.classList.remove('hidden');
+                btnConfig.classList.remove('hidden');
+                badgeReadOnly.classList.add('hidden');
+                badgeAutoSave.classList.remove('hidden');
+                statusText.innerText = "Ready to Edit (Auto-save On)";
+                statusText.className = "font-semibold text-green-700";
+            } else {
+                // Read Only Mode
+                btnLogin.classList.remove('hidden');
+                btnLogout.classList.add('hidden');
+                btnConfig.classList.add('hidden');
+                badgeReadOnly.classList.remove('hidden');
+                badgeAutoSave.classList.add('hidden');
+                statusText.innerText = "View Only Mode (Login to Edit)";
+                statusText.className = "font-semibold text-gray-500";
+            }
+        }
+
+        // --- EXPORT FUNCTION ---
+        window.exportToExcel = function() {
+            if (!data || data.length === 0) {
+                alert("ไม่มีข้อมูลสำหรับส่งออก");
+                return;
+            }
+
+            const dateInfo = getThaiMonthYear(currentDate);
+            const monthLabel = `${dateInfo.month} ${dateInfo.year}`;
+
+            // Prepare headers - Flat structure for billing
+            const flatHeaders = ["ลำดับ", "รายการ", "รายละเอียด"];
+            locations.forEach(loc => {
+                flatHeaders.push(`${loc.label} (1-15)`);
+                flatHeaders.push(`${loc.label} (16-สิ้นเดือน)`);
+                flatHeaders.push(`${loc.label} (รวม)`);
+            });
+            flatHeaders.push("รวมทั้งสิ้น");
+
+            const rows = [];
+            
+            // Data rows
+            data.forEach(item => {
+                const row = [
+                    item.id,
+                    item.desc,
+                    item.detail
+                ];
+
+                let rowTotal = 0;
+
+                locations.forEach(loc => {
+                    if (item[loc.key]) {
+                        const h1 = parseFloat(getStoredValue(item.id, loc.key, 'h1') || 0);
+                        const h2 = parseFloat(getStoredValue(item.id, loc.key, 'h2') || 0);
+                        const total = h1 + h2;
+                        
+                        row.push(h1 || "");
+                        row.push(h2 || "");
+                        row.push(total || "");
+                        
+                        rowTotal += total;
+                    } else {
+                        row.push("-");
+                        row.push("-");
+                        row.push("-");
+                    }
+                });
+
+                row.push(rowTotal || "");
+                rows.push(row);
+            });
+
+            // Footer Row (Grand Totals)
+            const footerRow = ["", "รวมทั้งสิ้น (Grand Total)", ""];
+            let grandTotalAll = 0;
+            
+            locations.forEach(loc => {
+                let sumH1 = 0;
+                let sumH2 = 0;
+                data.forEach(item => {
+                    if(item[loc.key]){
+                        sumH1 += parseFloat(getStoredValue(item.id, loc.key, 'h1') || 0);
+                        sumH2 += parseFloat(getStoredValue(item.id, loc.key, 'h2') || 0);
+                    }
+                });
+                
+                footerRow.push(sumH1 || "");
+                footerRow.push(sumH2 || "");
+                footerRow.push((sumH1 + sumH2) || "");
+                
+                grandTotalAll += (sumH1 + sumH2);
+            });
+            footerRow.push(grandTotalAll);
+            rows.push(footerRow);
+
+            // Create Worksheet
+            const worksheetData = [
+                [`รายงาน Wording Operation ประจำเดือน ${monthLabel}`], // Title
+                [], // Empty row
+                flatHeaders,
+                ...rows
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+            
+            // Adjust column widths slightly
+            const wscols = [{wch:6}, {wch:30}, {wch:30}];
+            locations.forEach(() => {
+                wscols.push({wch:10});
+                wscols.push({wch:10});
+                wscols.push({wch:10});
+            });
+            wscols.push({wch:12});
+            ws['!cols'] = wscols;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Operation Data");
+
+            // Save
+            XLSX.writeFile(wb, `Wording_Operation_${dateInfo.month}_${dateInfo.year}.xlsx`);
+        }
+
+        // --- FIREBASE FUNCTIONS ---
+
+        function loadData() {
+            const valuesRef = ref(db, 'wordingOpData/values');
+            onValue(valuesRef, (snapshot) => {
+                const val = snapshot.val();
+                monthlyData = val || {};
+                window.syncUIWithData();
+            });
+
+            const structureRef = ref(db, 'wordingOpData/structure');
+            onValue(structureRef, (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    data = val;
+                    renderTable();
+                } else {
+                    // Fallback data if DB empty
+                    data = [
+                        { id: 1, desc: "Yard Operation Management", detail: "เช่น Final check + Walkaround", rayong: true, soi5: true, whale: true, nyb: false, mhp2: false },
+                        { id: 2, desc: "PDI IN", detail: "ตรวจ PDI ครั้งแรก", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
+                        { id: 3, desc: "Re-PDI 1", detail: "หลังจากตรวจครั้งแรกไม่ผ่าน // ตรวจรอบ 2", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
+                        { id: 4, desc: "Re-PDI 2", detail: "หลังจากตรวจครั้งที่ 2 ไม่ผ่าน // ตรวจรอบ 3", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
+                        { id: 5, desc: "PDI OUT", detail: "รถที่ Gate out ไป Dealer", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 6, desc: "Wash for PDI", detail: "ล้างก่อนตรวจ PDI // Final check", rayong: true, soi5: true, whale: true, nyb: false, mhp2: false },
+                        { id: 7, desc: "Wash for Sale", detail: "ล้างก่อนขาย ไป Dealer", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 8, desc: "Wash for PM", detail: "ล้างก่อน PM", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 9, desc: "PM (Periodical maintenance)", detail: "PM", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 10, desc: "Battery Charging Service", detail: "ชาร์จแบต", rayong: true, soi5: true, whale: true, nyb: true, mhp2: false },
+                        { id: 11, desc: "Gate in", detail: "ย้าย Yard to Yard // เก็บได้กรณีรถเข้าปลายทาง", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 12, desc: "Gate Out", detail: "ย้าย Yard to Yard // เก็บได้กรณีออกจากต้นทาง", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 13, desc: "Additional accessery", detail: "ใส่ accessery ย้อนหลัง", rayong: true, soi5: false, whale: true, nyb: false, mhp2: false },
+                        { id: 14, desc: "Move from zone to operation area (all activity)", detail: "ย้ายรถสินค้าจาก zone จอด มาพื้นที่ Operation", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 15, desc: "Move from operation area to zone (all activity)", detail: "ย้ายรถสินค้าจาก พื้นที่ Operation มา zone จอด", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true },
+                        { id: 16, desc: "Wash for Repair", detail: "ล้างก่อนซ่อม", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
+                        { id: 17, desc: "Rust", detail: "ขัดสนิม", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true }
+                    ];
+                    renderTable();
+                }
+            });
+        }
+
+        // --- HELPERS ---
+
+        function getMonthKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function getThaiMonthYear(date) {
+            const months = [
+                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+            ];
+            return {
+                month: months[date.getMonth()],
+                year: date.getFullYear() + 543
+            };
+        }
+
+        function getStoredValue(itemId, locationKey, part) {
+            const monthKey = getMonthKey(currentDate);
+            const storageKey = `${itemId}_${locationKey}_${part}`;
+            
+            if (monthlyData[monthKey] && monthlyData[monthKey][storageKey] !== undefined) {
+                return monthlyData[monthKey][storageKey];
+            }
+            return '';
+        }
+
+        function setStoredValue(itemId, locationKey, part, value) {
+            const monthKey = getMonthKey(currentDate);
+            const storageKey = `${itemId}_${locationKey}_${part}`;
+
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = {};
+            }
+            monthlyData[monthKey][storageKey] = value;
+        }
+
+        function getCellTotal(item, locKey) {
+            const h1 = parseFloat(getStoredValue(item.id, locKey, 'h1') || 0);
+            const h2 = parseFloat(getStoredValue(item.id, locKey, 'h2') || 0);
+            return h1 + h2;
+        }
+
+        function getRowTotal(item) {
+            let sum = 0;
+            locations.forEach(loc => {
+                if(item[loc.key]) {
+                    sum += getCellTotal(item, loc.key);
+                }
+            });
+            return sum;
+        }
+
+        function getColumnTotal(locKey) {
+            return data.reduce((sum, item) => {
+                return item[locKey] ? sum + getCellTotal(item, locKey) : sum;
+            }, 0);
+        }
+
+        function getGrandTotal() {
+            return data.reduce((sum, item) => sum + getRowTotal(item), 0);
+        }
+
+        function showSavingIndicator() {
+            const el = document.getElementById('saving-indicator');
+            el.classList.add('show');
+            setTimeout(() => {
+                el.classList.remove('show');
+            }, 1000);
+        }
+
+        // --- UI SYNC ---
+        window.syncUIWithData = function() {
+            if (isConfigMode) return;
+
+            data.forEach(item => {
+                locations.forEach(loc => {
+                    if (item[loc.key]) {
+                        // Inputs are only updated if not active to avoid cursor jumping
+                        const idH1 = `input-${item.id}-${loc.key}-h1`;
+                        const elH1 = document.getElementById(idH1);
+                        if (elH1 && document.activeElement !== elH1) {
+                            elH1.value = getStoredValue(item.id, loc.key, 'h1');
+                        }
+
+                        const idH2 = `input-${item.id}-${loc.key}-h2`;
+                        const elH2 = document.getElementById(idH2);
+                        if (elH2 && document.activeElement !== elH2) {
+                            elH2.value = getStoredValue(item.id, loc.key, 'h2');
+                        }
+
+                        const cellTotalEl = document.getElementById(`total-${item.id}-${loc.key}`);
+                        if (cellTotalEl) {
+                            const total = getCellTotal(item, loc.key);
+                            cellTotalEl.innerText = total > 0 ? total.toLocaleString() : '-';
+                        }
+                    }
+                });
+
+                const rowTotalEl = document.getElementById(`row-total-${item.id}`);
+                if (rowTotalEl) {
+                    const rTotal = getRowTotal(item);
+                    rowTotalEl.innerText = rTotal > 0 ? rTotal.toLocaleString() : '-';
+                }
+            });
+
+            window.renderFooter();
+        }
+
+        // --- USER ACTIONS ---
+
+        window.updateDateDisplay = function() {
+            const dateInfo = getThaiMonthYear(currentDate);
+            const monthEl = document.getElementById('display-month');
+            const yearEl = document.getElementById('display-year');
+            
+            monthEl.classList.add('opacity-0');
+            yearEl.classList.add('opacity-0');
+
+            setTimeout(() => {
+                monthEl.innerText = dateInfo.month;
+                yearEl.innerText = `พ.ศ. ${dateInfo.year}`;
+                monthEl.classList.remove('opacity-0');
+                yearEl.classList.remove('opacity-0');
+            }, 200);
+        }
+
+        window.changeMonth = function(offset) {
+            currentDate.setMonth(currentDate.getMonth() + offset);
+            window.updateDateDisplay();
+            renderTable(); 
+        }
+
+        window.toggleMode = function() {
+            if (!isLoggedIn) return; // Guard clause
+
+            isConfigMode = !isConfigMode;
+            const btn = document.getElementById('btn-toggle-mode');
+            const btnText = document.getElementById('btn-mode-text');
+            const btnAdd = document.getElementById('btn-add-item');
+            const desc = document.getElementById('mode-description');
+            
+            if (isConfigMode) {
+                btn.classList.replace('bg-white', 'bg-yellow-500');
+                btn.classList.replace('text-gray-700', 'text-white');
+                btnText.innerText = "Done";
+                desc.innerText = "โหมดตั้งค่า: แก้ไขโครงสร้าง";
+                btnAdd.classList.remove('hidden');
+            } else {
+                btn.classList.replace('bg-yellow-500', 'bg-white');
+                btn.classList.replace('text-white', 'text-gray-700');
+                btnText.innerText = "Config";
+                desc.innerText = "โหมดบันทึกข้อมูล";
+                btnAdd.classList.add('hidden');
+            }
+            renderTable();
+        }
+
+        window.addNewItem = function() {
+            if (!isLoggedIn) return;
+
+            const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
+            const newItem = {
+                id: newId,
+                desc: "รายการใหม่",
+                detail: "-",
+                rayong: true, soi5: true, whale: true, nyb: true, mhp2: true
+            };
+            data.push(newItem);
+            set(ref(db, 'wordingOpData/structure'), data);
+        }
+
+        window.deleteItem = function(id) {
+            if (!isLoggedIn) return;
+
+            if(confirm("ยืนยันการลบรายการ?")) {
+                data = data.filter(d => d.id !== id);
+                set(ref(db, 'wordingOpData/structure'), data);
+            }
+        }
+
+        window.handleConfigChange = function(id, key) {
+            if (!isLoggedIn) return;
+
+            const item = data.find(d => d.id === id);
+            if (item) {
+                item[key] = !item[key];
+                set(ref(db, 'wordingOpData/structure'), data);
+            }
+        }
+
+        window.handleTextEdit = function(id, field, value) {
+            if (!isLoggedIn) return;
+
+            const item = data.find(d => d.id === id);
+            if (item) {
+                item[field] = value;
+                const debounceKey = `struct-${id}`;
+                clearTimeout(saveTimeoutObj[debounceKey]);
+                saveTimeoutObj[debounceKey] = setTimeout(() => {
+                    set(ref(db, 'wordingOpData/structure'), data);
+                }, 1000);
+            }
+        }
+
+        // --- MAIN INPUT HANDLER ---
+        window.handleInputChange = function(id, locKey, part, value) {
+            if (!isLoggedIn) return; // Prevent editing if not logged in
+
+            // 1. Local update
+            setStoredValue(id, locKey, part, value);
+            
+            // 2. UI Update
+            const item = data.find(d => d.id === id);
+            const cellTotalEl = document.getElementById(`total-${id}-${locKey}`);
+            if (cellTotalEl) {
+                const total = getCellTotal(item, locKey);
+                cellTotalEl.innerText = total > 0 ? total.toLocaleString() : '-';
+            }
+            const rowTotalEl = document.getElementById(`row-total-${id}`);
+            if (rowTotalEl) {
+                const rTotal = getRowTotal(item);
+                rowTotalEl.innerText = rTotal > 0 ? rTotal.toLocaleString() : '-';
+            }
+            window.renderFooter();
+
+            // 3. Auto-Save
+            const monthKey = getMonthKey(currentDate);
+            const storageKey = `${id}_${locKey}_${part}`;
+            const path = `wordingOpData/values/${monthKey}/${storageKey}`;
+            
+            if (saveTimeoutObj[storageKey]) {
+                clearTimeout(saveTimeoutObj[storageKey]);
+            }
+
+            saveTimeoutObj[storageKey] = setTimeout(() => {
+                set(ref(db, path), value)
+                .then(() => {
+                    showSavingIndicator();
+                    delete saveTimeoutObj[storageKey];
+                })
+                .catch(err => console.error("Auto-save failed", err));
+            }, 600);
+        }
+
+        window.renderFooter = function() {
+            const footer = document.getElementById('table-footer');
+            if(!footer) return;
+            if (isConfigMode) {
+                footer.innerHTML = '';
+                return;
+            }
+
+            const isMobile = window.innerWidth < 768;
+            const colSpan = isMobile ? 2 : 3;
+
+            let html = `<tr><td colspan="${colSpan}" class="px-4 py-3 text-right sticky-left-0 bg-gray-100 z-20 border-t-2 border-gray-300 text-xs md:text-sm">Grand Total:</td>`;
+            
+            locations.forEach(loc => {
+                const total = getColumnTotal(loc.key);
+                html += `
+                    <td class="px-1 md:px-2 py-3 text-center text-${loc.color}-700 bg-${loc.color}-50/30 border-l border-gray-200 border-t-2 border-gray-300 text-xs md:text-sm">
+                        <span id="col-total-${loc.key}">${total.toLocaleString()}</span>
+                    </td>`;
+            });
+
+            const grandTotal = getGrandTotal();
+            html += `
+                <td class="px-2 md:px-4 py-3 text-center bg-gray-200 sticky-right-0 z-20 border-t-2 border-gray-300 text-xs md:text-sm">
+                    <span id="grand-total">${grandTotal.toLocaleString()}</span>
+                </td>
+            </tr>`;
+
+            footer.innerHTML = html;
+        }
+
+        // Main Render Function
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'} animate-fade-in`;
+
+                let firstCol = `<td class="px-2 md:px-4 py-3 text-center text-gray-400 font-mono sticky-left-0 bg-inherit z-10 border-r border-gray-100 text-xs md:text-sm">`;
+                if (isConfigMode) {
+                    firstCol += `<button onclick="window.deleteItem(${item.id})" class="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded"><i data-lucide="trash-2" class="w-3 h-3 md:w-4 md:h-4"></i></button>`;
+                } else {
+                    firstCol += `${item.id}`;
+                }
+                firstCol += `</td>`;
+
+                let descCol = '';
+                if (isConfigMode) {
+                    descCol = `<td class="px-2 py-2 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)]"><input type="text" value="${item.desc}" oninput="window.handleTextEdit(${item.id}, 'desc', this.value)" class="w-full px-2 py-1 border border-indigo-200 rounded text-indigo-700 bg-indigo-50 text-xs md:text-sm"></td>`;
+                } else {
+                    descCol = `<td class="px-2 md:px-4 py-3 font-medium text-gray-900 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm truncate max-w-[150px] md:max-w-none" title="${item.desc}">${item.desc}</td>`;
+                }
+
+                let detailCol = '';
+                if (isConfigMode) {
+                    detailCol = `<td class="hidden md:table-cell px-2 py-2"><input type="text" value="${item.detail}" oninput="window.handleTextEdit(${item.id}, 'detail', this.value)" class="w-full px-2 py-1 border border-gray-200 rounded text-gray-600 text-xs"></td>`;
+                } else {
+                    detailCol = `<td class="hidden md:table-cell px-4 py-3 text-gray-500 text-xs leading-relaxed max-w-xs truncate" title="${item.detail}">${item.detail}</td>`;
+                }
+
+                let html = firstCol + descCol + detailCol;
+
+                // Input Disabled State Logic
+                const inputDisabledAttr = isLoggedIn ? '' : 'disabled';
+                const inputBgClass = isLoggedIn ? 'bg-white hover:border-blue-300' : 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent';
+
+                locations.forEach(loc => {
+                    html += `<td class="px-1 md:px-2 py-2 md:py-3 text-center border-l border-gray-100 ${isConfigMode ? `bg-${loc.color}-50/10` : ''}">`;
+                    
+                    if (isConfigMode) {
+                        html += `<label class="inline-flex items-center justify-center w-full h-full cursor-pointer py-1"><input type="checkbox" ${item[loc.key] ? 'checked' : ''} onchange="window.handleConfigChange(${item.id}, '${loc.key}')" class="w-5 h-5 text-${loc.color}-600 border-gray-300 rounded focus:ring-${loc.color}-500 cursor-pointer accent-${loc.color}-600"></label>`;
+                    } else {
+                        if (item[loc.key]) {
+                            const val1 = getStoredValue(item.id, loc.key, 'h1');
+                            const val2 = getStoredValue(item.id, loc.key, 'h2');
+                            const cellTotal = parseFloat(val1 || 0) + parseFloat(val2 || 0);
+                            
+                            html += `
+                                <div class="flex items-center gap-0.5 md:gap-1 justify-center">
+                                    <input type="number" ${inputDisabledAttr} id="input-${item.id}-${loc.key}-h1" placeholder="${isLoggedIn ? '-' : ''}" value="${val1}" 
+                                        oninput="window.handleInputChange(${item.id}, '${loc.key}', 'h1', this.value)"
+                                        class="w-8 md:w-10 p-1 text-center text-[10px] md:text-xs border rounded focus:outline-none focus:ring-1 focus:ring-${loc.color}-500 shadow-sm transition-colors ${inputBgClass}">
+                                    
+                                    <input type="number" ${inputDisabledAttr} id="input-${item.id}-${loc.key}-h2" placeholder="${isLoggedIn ? '-' : ''}" value="${val2}" 
+                                        oninput="window.handleInputChange(${item.id}, '${loc.key}', 'h2', this.value)"
+                                        class="w-8 md:w-10 p-1 text-center text-[10px] md:text-xs border rounded focus:outline-none focus:ring-1 focus:ring-${loc.color}-500 shadow-sm transition-colors ${inputBgClass}">
+                                    
+                                    <div id="total-${item.id}-${loc.key}" class="w-6 md:w-8 text-center text-[10px] md:text-xs font-bold text-${loc.color}-700">
+                                        ${cellTotal > 0 ? cellTotal.toLocaleString() : '-'}
+                                    </div>
+                                </div>`;
+                        } else {
+                            html += `<span class="text-gray-200 text-lg select-none">·</span>`;
+                        }
+                    }
+                    html += `</td>`;
+                });
+
+                if (!isConfigMode) {
+                    const rowTotal = getRowTotal(item);
+                    html += `<td class="px-2 md:px-4 py-3 text-center font-bold text-gray-800 bg-gray-50 sticky-right-0 z-10 border-l border-gray-200 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm"><span id="row-total-${item.id}">${rowTotal > 0 ? rowTotal.toLocaleString() : '-'}</span></td>`;
+                }
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            window.renderFooter();
+            lucide.createIcons();
+        }
+
+        window.onload = function() {
+            window.updateDateDisplay();
+            updateUIState(); // Set initial UI (Read only)
+            window.addEventListener('resize', window.renderFooter);
+            loadData();
+        };
+
+    </script>
+</body>
+</html>
