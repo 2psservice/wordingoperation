@@ -152,6 +152,12 @@
                     <span>Login</span>
                 </button>
                 
+                <!-- Account Settings Button (Hidden initially) -->
+                 <button id="btn-change-pwd" onclick="window.toggleChangePasswordModal()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors shadow-sm text-sm ml-2">
+                    <i data-lucide="user-cog" class="w-4 h-4"></i>
+                    <span class="hidden md:inline">ตั้งค่าบัญชี</span>
+                </button>
+
                 <!-- Logout Button (Hidden) -->
                 <button id="btn-logout" onclick="window.logout()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors shadow-sm text-sm ml-2">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -270,6 +276,7 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="password" type="password" placeholder="******************">
                         <p id="login-error" class="text-red-500 text-xs italic hidden">Username หรือ Password ไม่ถูกต้อง</p>
+                         <p id="login-loading" class="text-indigo-500 text-xs italic hidden">กำลังตรวจสอบข้อมูล...</p>
                     </div>
                 </div>
 
@@ -277,6 +284,57 @@
                 <div class="flex justify-end pt-2">
                     <button onclick="window.toggleLoginModal()" class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2">ยกเลิก</button>
                     <button onclick="window.performLogin()" class="px-4 bg-indigo-600 p-3 rounded-lg text-white hover:bg-indigo-700">เข้าสู่ระบบ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Settings Modal -->
+    <div id="change-pwd-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="window.toggleChangePasswordModal()"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto transform transition-all scale-95 duration-200">
+            <div class="modal-content py-4 text-left px-6">
+                <!--Title-->
+                <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                    <p class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="user-cog" class="w-5 h-5 text-indigo-500"></i>
+                        ตั้งค่าบัญชี (Account Settings)
+                    </p>
+                    <div class="cursor-pointer z-50 p-2" onclick="window.toggleChangePasswordModal()">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                </div>
+
+                <!--Body-->
+                <div class="my-5 space-y-4">
+                     <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-username">Username</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 bg-gray-50" id="edit-username" type="text" placeholder="New Username">
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-3">
+                         <label class="block text-gray-700 text-sm font-bold mb-2" for="old-password">รหัสผ่านปัจจุบัน (เพื่อยืนยันการแก้ไข)</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="old-password" type="password" placeholder="Current Password">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="new-password">รหัสผ่านใหม่ <span class="text-gray-400 font-normal text-xs">(เว้นว่างถ้าไม่ต้องการเปลี่ยน)</span></label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="new-password" type="password" placeholder="New Password (Optional)">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm-password">ยืนยันรหัสผ่านใหม่</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="confirm-password" type="password" placeholder="Confirm New Password">
+                        
+                        <p id="pwd-error" class="text-red-500 text-xs italic hidden">รหัสผ่านไม่ตรงกัน หรือ รหัสผ่านเดิมผิด</p>
+                        <p id="pwd-success" class="text-green-500 text-xs italic hidden">บันทึกข้อมูลเรียบร้อยแล้ว!</p>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="flex justify-end pt-2">
+                    <button onclick="window.toggleChangePasswordModal()" class="px-4 bg-transparent p-3 rounded-lg text-gray-500 hover:bg-gray-100 mr-2">ยกเลิก</button>
+                    <button onclick="window.performChangePassword()" class="px-4 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700">บันทึกการเปลี่ยนแปลง</button>
                 </div>
             </div>
         </div>
@@ -315,6 +373,7 @@
 
         let isConfigMode = false;
         let isLoggedIn = false; // Login State
+        let currentUser = 'guest';
         let currentDate = new Date();
         let saveTimeoutObj = {}; 
 
@@ -333,25 +392,61 @@
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('login-loading').classList.add('hidden');
         }
 
-        window.performLogin = function() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        window.performLogin = async function() {
+            const userIn = document.getElementById('username').value;
+            const passIn = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
+            const loadingMsg = document.getElementById('login-loading');
 
-            if (user === 'admin' && pass === 'admin') {
-                isLoggedIn = true;
-                window.toggleLoginModal();
-                updateUIState();
-                renderTable(); // Re-render to enable inputs
-            } else {
+            if(!userIn || !passIn) {
+                errorMsg.innerText = "กรุณากรอก Username และ Password";
                 errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Show loading
+            errorMsg.classList.add('hidden');
+            loadingMsg.classList.remove('hidden');
+
+            // Fetch Auth Data from Firebase
+            const authRef = ref(db, 'wordingOpData/settings/auth');
+            
+            try {
+                const snapshot = await get(authRef);
+                // Default credential if not set in DB yet
+                let authData = { username: 'admin', password: 'admin' };
+                
+                if (snapshot.exists()) {
+                    authData = snapshot.val();
+                } else {
+                    // First time login with default
+                }
+
+                if (userIn === authData.username && passIn === authData.password) {
+                    isLoggedIn = true;
+                    currentUser = userIn;
+                    window.toggleLoginModal();
+                    updateUIState();
+                    renderTable(); // Re-render to enable inputs
+                } else {
+                    errorMsg.innerText = "Username หรือ Password ไม่ถูกต้อง";
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                errorMsg.innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+                errorMsg.classList.remove('hidden');
+            } finally {
+                loadingMsg.classList.add('hidden');
             }
         }
 
         window.logout = function() {
             isLoggedIn = false;
+            currentUser = 'guest';
             // Force exit config mode if active
             if (isConfigMode) {
                 window.toggleMode();
@@ -364,6 +459,8 @@
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
             const btnConfig = document.getElementById('btn-toggle-mode');
+            const btnChangePwd = document.getElementById('btn-change-pwd');
+            
             const badgeReadOnly = document.getElementById('badge-readonly');
             const badgeAutoSave = document.getElementById('badge-autosave');
             const statusText = document.getElementById('status-text');
@@ -373,21 +470,119 @@
                 btnLogin.classList.add('hidden');
                 btnLogout.classList.remove('hidden');
                 btnConfig.classList.remove('hidden');
+                btnChangePwd.classList.remove('hidden');
+                
                 badgeReadOnly.classList.add('hidden');
                 badgeAutoSave.classList.remove('hidden');
-                statusText.innerText = "Ready to Edit (Auto-save On)";
-                statusText.className = "font-semibold text-green-700";
+                statusText.innerText = `Admin: ${currentUser}`;
+                statusText.className = "font-semibold text-indigo-700";
             } else {
                 // Read Only Mode
                 btnLogin.classList.remove('hidden');
                 btnLogout.classList.add('hidden');
                 btnConfig.classList.add('hidden');
+                btnChangePwd.classList.add('hidden');
+
                 badgeReadOnly.classList.remove('hidden');
                 badgeAutoSave.classList.add('hidden');
-                statusText.innerText = "View Only Mode (Login to Edit)";
+                statusText.innerText = "View Only Mode";
                 statusText.className = "font-semibold text-gray-500";
             }
         }
+
+        // --- ACCOUNT SETTINGS FUNCTIONS ---
+        
+        window.toggleChangePasswordModal = function() {
+            const modal = document.getElementById('change-pwd-modal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+
+            // Clear inputs and Set Current Values
+            document.getElementById('edit-username').value = currentUser;
+            document.getElementById('old-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('pwd-error').classList.add('hidden');
+            document.getElementById('pwd-success').classList.add('hidden');
+        }
+
+        window.performChangePassword = async function() {
+            const newUsername = document.getElementById('edit-username').value.trim();
+            const oldPass = document.getElementById('old-password').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const errorEl = document.getElementById('pwd-error');
+            const successEl = document.getElementById('pwd-success');
+
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+
+            if (!newUsername) {
+                errorEl.innerText = "Username ห้ามเป็นค่าว่าง";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (!oldPass) {
+                errorEl.innerText = "กรุณากรอกรหัสผ่านปัจจุบันเพื่อยืนยัน";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            // If changing password, check match
+            if (newPass && newPass !== confirmPass) {
+                errorEl.innerText = "รหัสผ่านใหม่ไม่ตรงกัน";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            // Verify Old Password against DB
+            const authRef = ref(db, 'wordingOpData/settings/auth');
+            try {
+                const snapshot = await get(authRef);
+                let currentAuth = { username: 'admin', password: 'admin' };
+                if (snapshot.exists()) {
+                    currentAuth = snapshot.val();
+                }
+
+                if (oldPass !== currentAuth.password) {
+                    errorEl.innerText = "รหัสผ่านปัจจุบันไม่ถูกต้อง";
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Determine final password (new or keep old)
+                const finalPassword = newPass ? newPass : currentAuth.password;
+
+                // Save New Settings
+                await set(authRef, {
+                    username: newUsername,
+                    password: finalPassword
+                });
+
+                // Update Local State
+                currentUser = newUsername;
+                updateUIState();
+
+                successEl.classList.remove('hidden');
+                
+                // Clear fields
+                document.getElementById('old-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                
+                setTimeout(() => {
+                    window.toggleChangePasswordModal();
+                }, 1500);
+
+            } catch (err) {
+                console.error("Change Settings Error:", err);
+                errorEl.innerText = "เกิดข้อผิดพลาดในการบันทึก";
+                errorEl.classList.remove('hidden');
+            }
+        }
+
 
         // --- EXPORT FUNCTION ---
         window.exportToExcel = function() {
