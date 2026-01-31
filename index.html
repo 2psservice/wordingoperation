@@ -127,15 +127,22 @@
                 </div>
 
                 <!-- Admin Tools (Hidden by default) -->
-                <button id="btn-toggle-mode" onclick="window.toggleMode()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors shadow-sm text-sm">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
-                    <span id="btn-mode-text">Config</span>
-                </button>
+                <div id="admin-tools-group" class="hidden flex gap-2">
+                    <button id="btn-manage-yards" onclick="window.toggleYardModal()" class="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-100 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors shadow-sm text-sm">
+                        <i data-lucide="map" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">จัดการ Yards</span>
+                    </button>
 
-                 <button id="btn-add-item" onclick="window.addNewItem()" class="hidden flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors shadow-sm text-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>เพิ่ม</span>
-                </button>
+                    <button id="btn-toggle-mode" onclick="window.toggleMode()" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors shadow-sm text-sm">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                        <span id="btn-mode-text">Config</span>
+                    </button>
+
+                     <button id="btn-add-item" onclick="window.addNewItem()" class="hidden flex items-center gap-2 px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors shadow-sm text-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>เพิ่มรายการ</span>
+                    </button>
+                </div>
 
                 <div class="w-px h-8 bg-gray-300 mx-1 hidden xl:block"></div>
 
@@ -169,57 +176,8 @@
         <!-- Table Container -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-auto relative h-[calc(100vh-220px)] md:h-[calc(100vh-200px)]">
             <table class="min-w-full text-sm text-left border-collapse">
-                <thead class="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-                    <tr>
-                        <th class="px-2 md:px-4 py-3 md:py-4 w-10 md:w-12 text-center sticky-left-0 bg-gray-100 z-30 border-r border-gray-200 text-xs md:text-sm">#</th>
-                        <th class="px-2 md:px-4 py-3 md:py-4 min-w-[150px] md:min-w-[250px] sticky-left-first bg-gray-100 z-30 border-r border-gray-200 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm">Description</th>
-                        <th class="hidden md:table-cell px-4 py-4 min-w-[200px]">รายละเอียด</th>
-                        
-                        <!-- Location Headers -->
-                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-blue-50 text-blue-800 border-l border-blue-100">
-                            <div class="flex flex-col items-center">
-                                <span class="text-xs md:text-sm font-bold">RAYONG</span>
-                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
-                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
-                                </div>
-                            </div>
-                        </th>
-                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-green-50 text-green-800 border-l border-green-100">
-                            <div class="flex flex-col items-center">
-                                <span class="text-xs md:text-sm font-bold">Soi 5</span>
-                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
-                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
-                                </div>
-                            </div>
-                        </th>
-                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-purple-50 text-purple-800 border-l border-purple-100">
-                            <div class="flex flex-col items-center">
-                                <span class="text-xs md:text-sm font-bold">Whale</span>
-                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
-                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
-                                </div>
-                            </div>
-                        </th>
-                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-orange-50 text-orange-800 border-l border-orange-100">
-                            <div class="flex flex-col items-center">
-                                <span class="text-xs md:text-sm font-bold">NYB</span>
-                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
-                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
-                                </div>
-                            </div>
-                        </th>
-                        <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-pink-50 text-pink-800 border-l border-pink-100">
-                            <div class="flex flex-col items-center">
-                                <span class="text-xs md:text-sm font-bold">MHP2</span>
-                                <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
-                                    <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
-                                </div>
-                            </div>
-                        </th>
-                        <th id="header-row-total" class="px-2 md:px-4 py-3 md:py-4 w-16 md:w-24 text-center bg-gray-200 text-gray-800 font-bold sticky-right-0 z-30 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] text-xs md:text-sm">
-                            Total
-                        </th>
-                    </tr>
+                <thead id="table-head" class="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+                    <!-- Dynamic Headers will be injected here -->
                 </thead>
                 <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
                 <tfoot id="table-footer" class="bg-gray-100 font-bold text-gray-800 border-t-2 border-gray-300 sticky bottom-0 z-30 shadow-[0_-5px_10px_-5px_rgba(0,0,0,0.1)]"></tfoot>
@@ -255,18 +213,14 @@
     <!-- Login Modal -->
     <div id="login-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
         <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="window.toggleLoginModal()"></div>
-        
         <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto transform transition-all scale-95 duration-200">
             <div class="modal-content py-4 text-left px-6">
-                <!--Title-->
                 <div class="flex justify-between items-center pb-3 border-b border-gray-100">
                     <p class="text-xl font-bold text-gray-800">ผู้ดูแลระบบ (Admin Login)</p>
                     <div class="cursor-pointer z-50 p-2" onclick="window.toggleLoginModal()">
                         <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
                     </div>
                 </div>
-
-                <!--Body-->
                 <div class="my-5 space-y-4">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
@@ -276,11 +230,9 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="password" type="password" placeholder="******************">
                         <p id="login-error" class="text-red-500 text-xs italic hidden">Username หรือ Password ไม่ถูกต้อง</p>
-                         <p id="login-loading" class="text-indigo-500 text-xs italic hidden">กำลังตรวจสอบข้อมูล...</p>
+                        <p id="login-loading" class="text-indigo-500 text-xs italic hidden">กำลังตรวจสอบข้อมูล...</p>
                     </div>
                 </div>
-
-                <!--Footer-->
                 <div class="flex justify-end pt-2">
                     <button onclick="window.toggleLoginModal()" class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2">ยกเลิก</button>
                     <button onclick="window.performLogin()" class="px-4 bg-indigo-600 p-3 rounded-lg text-white hover:bg-indigo-700">เข้าสู่ระบบ</button>
@@ -289,13 +241,72 @@
         </div>
     </div>
 
+    <!-- Yard Management Modal -->
+    <div id="yard-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="window.toggleYardModal()"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-2xl mx-auto rounded shadow-lg z-50 overflow-y-auto transform transition-all scale-95 duration-200 max-h-[90vh]">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                    <p class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="map" class="w-5 h-5 text-indigo-500"></i>
+                        จัดการสถานที่ (Yard Management)
+                    </p>
+                    <div class="cursor-pointer z-50 p-2" onclick="window.toggleYardModal()">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </div>
+                </div>
+                
+                <div class="my-4">
+                    <div class="bg-indigo-50 p-4 rounded-lg mb-4 border border-indigo-100">
+                        <h3 class="font-bold text-indigo-800 text-sm mb-2">เพิ่ม Yard ใหม่</h3>
+                        <div class="flex flex-col md:flex-row gap-2">
+                            <input id="new-yard-name" type="text" placeholder="ชื่อสถานที่ (เช่น KTCM, NYB 2)" class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <select id="new-yard-color" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="blue">สีน้ำเงิน (Blue)</option>
+                                <option value="green">สีเขียว (Green)</option>
+                                <option value="purple">สีม่วง (Purple)</option>
+                                <option value="orange">สีส้ม (Orange)</option>
+                                <option value="pink">สีชมพู (Pink)</option>
+                                <option value="red">สีแดง (Red)</option>
+                                <option value="teal">สีเขียวอมฟ้า (Teal)</option>
+                                <option value="cyan">สีฟ้า (Cyan)</option>
+                                <option value="indigo">สีคราม (Indigo)</option>
+                                <option value="amber">สีเหลืองอำพัน (Amber)</option>
+                            </select>
+                            <button onclick="window.addNewLocation()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> เพิ่ม
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-600 font-semibold border-b">
+                                <tr>
+                                    <th class="py-2 px-3">ชื่อสถานที่ (Label)</th>
+                                    <th class="py-2 px-3">สี (Theme)</th>
+                                    <th class="py-2 px-3 text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yard-list-body" class="divide-y divide-gray-100">
+                                <!-- Yard items will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2 border-t border-gray-100 mt-4">
+                    <button onclick="window.toggleYardModal()" class="px-4 bg-gray-100 p-2 rounded-lg text-gray-600 hover:bg-gray-200">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Account Settings Modal -->
     <div id="change-pwd-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
         <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="window.toggleChangePasswordModal()"></div>
-        
         <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto transform transition-all scale-95 duration-200">
             <div class="modal-content py-4 text-left px-6">
-                <!--Title-->
                 <div class="flex justify-between items-center pb-3 border-b border-gray-100">
                     <p class="text-xl font-bold text-gray-800 flex items-center gap-2">
                         <i data-lucide="user-cog" class="w-5 h-5 text-indigo-500"></i>
@@ -305,19 +316,15 @@
                         <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
                     </div>
                 </div>
-
-                <!--Body-->
                 <div class="my-5 space-y-4">
                      <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-username">Username</label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 bg-gray-50" id="edit-username" type="text" placeholder="New Username">
                     </div>
-                    
                     <div class="border-t border-gray-100 pt-3">
                          <label class="block text-gray-700 text-sm font-bold mb-2" for="old-password">รหัสผ่านปัจจุบัน (เพื่อยืนยันการแก้ไข)</label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="old-password" type="password" placeholder="Current Password">
                     </div>
-
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="new-password">รหัสผ่านใหม่ <span class="text-gray-400 font-normal text-xs">(เว้นว่างถ้าไม่ต้องการเปลี่ยน)</span></label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="new-password" type="password" placeholder="New Password (Optional)">
@@ -325,13 +332,10 @@
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm-password">ยืนยันรหัสผ่านใหม่</label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="confirm-password" type="password" placeholder="Confirm New Password">
-                        
                         <p id="pwd-error" class="text-red-500 text-xs italic hidden">รหัสผ่านไม่ตรงกัน หรือ รหัสผ่านเดิมผิด</p>
                         <p id="pwd-success" class="text-green-500 text-xs italic hidden">บันทึกข้อมูลเรียบร้อยแล้ว!</p>
                     </div>
                 </div>
-
-                <!--Footer-->
                 <div class="flex justify-end pt-2">
                     <button onclick="window.toggleChangePasswordModal()" class="px-4 bg-transparent p-3 rounded-lg text-gray-500 hover:bg-gray-100 mr-2">ยกเลิก</button>
                     <button onclick="window.performChangePassword()" class="px-4 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700">บันทึกการเปลี่ยนแปลง</button>
@@ -344,7 +348,7 @@
     <script type="module">
         // Import Firebase Functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
         const firebaseConfig = {
@@ -363,7 +367,7 @@
         const analytics = getAnalytics(app);
 
         // --- GLOBAL STATE ---
-        const locations = [
+        const defaultLocations = [
             { key: 'rayong', label: 'RAYONG', color: 'blue' },
             { key: 'soi5', label: 'Soi 5', color: 'green' },
             { key: 'whale', label: 'Whale', color: 'purple' },
@@ -371,16 +375,18 @@
             { key: 'mhp2', label: 'MHP2', color: 'pink' }
         ];
 
+        let locations = []; // Dynamic locations
+        
         let isConfigMode = false;
-        let isLoggedIn = false; // Login State
+        let isLoggedIn = false;
         let currentUser = 'guest';
         let currentDate = new Date();
         let saveTimeoutObj = {}; 
 
-        let data = []; // Initialized in loadData
+        let data = []; 
         let monthlyData = {};
 
-        // --- AUTH FUNCTIONS ---
+        // --- AUTH & SETUP ---
         
         window.toggleLoginModal = function() {
             const modal = document.getElementById('login-modal');
@@ -407,22 +413,16 @@
                 return;
             }
 
-            // Show loading
             errorMsg.classList.add('hidden');
             loadingMsg.classList.remove('hidden');
 
-            // Fetch Auth Data from Firebase
             const authRef = ref(db, 'wordingOpData/settings/auth');
             
             try {
                 const snapshot = await get(authRef);
-                // Default credential if not set in DB yet
                 let authData = { username: 'admin', password: 'admin' };
-                
                 if (snapshot.exists()) {
                     authData = snapshot.val();
-                } else {
-                    // First time login with default
                 }
 
                 if (userIn === authData.username && passIn === authData.password) {
@@ -430,7 +430,7 @@
                     currentUser = userIn;
                     window.toggleLoginModal();
                     updateUIState();
-                    renderTable(); // Re-render to enable inputs
+                    renderTable();
                 } else {
                     errorMsg.innerText = "Username หรือ Password ไม่ถูกต้อง";
                     errorMsg.classList.remove('hidden');
@@ -447,18 +447,15 @@
         window.logout = function() {
             isLoggedIn = false;
             currentUser = 'guest';
-            // Force exit config mode if active
-            if (isConfigMode) {
-                window.toggleMode();
-            }
+            if (isConfigMode) window.toggleMode();
             updateUIState();
-            renderTable(); // Re-render to disable inputs
+            renderTable();
         }
 
         function updateUIState() {
             const btnLogin = document.getElementById('btn-login');
             const btnLogout = document.getElementById('btn-logout');
-            const btnConfig = document.getElementById('btn-toggle-mode');
+            const adminTools = document.getElementById('admin-tools-group');
             const btnChangePwd = document.getElementById('btn-change-pwd');
             
             const badgeReadOnly = document.getElementById('badge-readonly');
@@ -466,10 +463,9 @@
             const statusText = document.getElementById('status-text');
 
             if (isLoggedIn) {
-                // Admin Mode
                 btnLogin.classList.add('hidden');
                 btnLogout.classList.remove('hidden');
-                btnConfig.classList.remove('hidden');
+                adminTools.classList.remove('hidden');
                 btnChangePwd.classList.remove('hidden');
                 
                 badgeReadOnly.classList.add('hidden');
@@ -477,10 +473,9 @@
                 statusText.innerText = `Admin: ${currentUser}`;
                 statusText.className = "font-semibold text-indigo-700";
             } else {
-                // Read Only Mode
                 btnLogin.classList.remove('hidden');
                 btnLogout.classList.add('hidden');
-                btnConfig.classList.add('hidden');
+                adminTools.classList.add('hidden');
                 btnChangePwd.classList.add('hidden');
 
                 badgeReadOnly.classList.remove('hidden');
@@ -490,15 +485,111 @@
             }
         }
 
-        // --- ACCOUNT SETTINGS FUNCTIONS ---
+        // --- YARD MANAGEMENT FUNCTIONS ---
+
+        window.toggleYardModal = function() {
+            const modal = document.getElementById('yard-modal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+            if(!modal.classList.contains('opacity-0')) {
+                renderYardList();
+            }
+        }
+
+        function renderYardList() {
+            const tbody = document.getElementById('yard-list-body');
+            tbody.innerHTML = '';
+            
+            locations.forEach(loc => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 group";
+                tr.innerHTML = `
+                    <td class="py-2 px-3">
+                        <input type="text" value="${loc.label}" 
+                            onchange="window.updateYardLabel('${loc.key}', this.value)"
+                            class="border border-transparent hover:border-gray-300 focus:border-indigo-500 rounded px-2 py-1 w-full bg-transparent">
+                    </td>
+                    <td class="py-2 px-3">
+                        <div class="flex items-center gap-2">
+                             <span class="w-4 h-4 rounded-full bg-${loc.color}-500 inline-block"></span>
+                             <select onchange="window.updateYardColor('${loc.key}', this.value)" class="text-sm border-none bg-transparent focus:ring-0 text-gray-600">
+                                <option value="blue" ${loc.color === 'blue' ? 'selected' : ''}>Blue</option>
+                                <option value="green" ${loc.color === 'green' ? 'selected' : ''}>Green</option>
+                                <option value="purple" ${loc.color === 'purple' ? 'selected' : ''}>Purple</option>
+                                <option value="orange" ${loc.color === 'orange' ? 'selected' : ''}>Orange</option>
+                                <option value="pink" ${loc.color === 'pink' ? 'selected' : ''}>Pink</option>
+                                <option value="red" ${loc.color === 'red' ? 'selected' : ''}>Red</option>
+                                <option value="teal" ${loc.color === 'teal' ? 'selected' : ''}>Teal</option>
+                                <option value="cyan" ${loc.color === 'cyan' ? 'selected' : ''}>Cyan</option>
+                                <option value="indigo" ${loc.color === 'indigo' ? 'selected' : ''}>Indigo</option>
+                                <option value="amber" ${loc.color === 'amber' ? 'selected' : ''}>Amber</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3 text-center">
+                        <button onclick="window.deleteYard('${loc.key}')" class="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        window.addNewLocation = async function() {
+            const nameInput = document.getElementById('new-yard-name');
+            const colorInput = document.getElementById('new-yard-color');
+            const name = nameInput.value.trim();
+            const color = colorInput.value;
+
+            if(!name) return alert("กรุณาระบุชื่อ Yard");
+
+            // Generate safe key
+            const key = 'loc_' + Date.now();
+            const newLoc = { key, label: name, color };
+
+            // Update local and db
+            const updatedLocations = [...locations, newLoc];
+            await set(ref(db, 'wordingOpData/settings/locations'), updatedLocations);
+            
+            nameInput.value = '';
+            renderYardList();
+        }
+
+        window.updateYardLabel = async function(key, newLabel) {
+            const loc = locations.find(l => l.key === key);
+            if(loc) {
+                loc.label = newLabel;
+                await set(ref(db, 'wordingOpData/settings/locations'), locations);
+            }
+        }
+
+        window.updateYardColor = async function(key, newColor) {
+            const loc = locations.find(l => l.key === key);
+            if(loc) {
+                loc.color = newColor;
+                await set(ref(db, 'wordingOpData/settings/locations'), locations);
+                renderYardList(); // Re-render to show new color dot
+            }
+        }
+
+        window.deleteYard = async function(key) {
+            if(!confirm("คุณแน่ใจหรือไม่ที่จะลบ Yard นี้? ข้อมูลที่บันทึกไว้ของ Yard นี้จะถูกซ่อน")) return;
+            const updatedLocations = locations.filter(l => l.key !== key);
+            await set(ref(db, 'wordingOpData/settings/locations'), updatedLocations);
+            renderYardList();
+        }
+
+        // --- ACCOUNT SETTINGS ---
         
         window.toggleChangePasswordModal = function() {
             const modal = document.getElementById('change-pwd-modal');
             modal.classList.toggle('opacity-0');
             modal.classList.toggle('pointer-events-none');
             document.body.classList.toggle('modal-active');
-
-            // Clear inputs and Set Current Values
+            
             document.getElementById('edit-username').value = currentUser;
             document.getElementById('old-password').value = '';
             document.getElementById('new-password').value = '';
@@ -518,33 +609,23 @@
             errorEl.classList.add('hidden');
             successEl.classList.add('hidden');
 
-            if (!newUsername) {
-                errorEl.innerText = "Username ห้ามเป็นค่าว่าง";
+            if (!newUsername || !oldPass) {
+                errorEl.innerText = "กรุณากรอกข้อมูลที่จำเป็น";
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            if (!oldPass) {
-                errorEl.innerText = "กรุณากรอกรหัสผ่านปัจจุบันเพื่อยืนยัน";
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
-            // If changing password, check match
             if (newPass && newPass !== confirmPass) {
                 errorEl.innerText = "รหัสผ่านใหม่ไม่ตรงกัน";
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            // Verify Old Password against DB
             const authRef = ref(db, 'wordingOpData/settings/auth');
             try {
                 const snapshot = await get(authRef);
                 let currentAuth = { username: 'admin', password: 'admin' };
-                if (snapshot.exists()) {
-                    currentAuth = snapshot.val();
-                }
+                if (snapshot.exists()) currentAuth = snapshot.val();
 
                 if (oldPass !== currentAuth.password) {
                     errorEl.innerText = "รหัสผ่านปัจจุบันไม่ถูกต้อง";
@@ -552,39 +633,24 @@
                     return;
                 }
 
-                // Determine final password (new or keep old)
-                const finalPassword = newPass ? newPass : currentAuth.password;
-
-                // Save New Settings
                 await set(authRef, {
                     username: newUsername,
-                    password: finalPassword
+                    password: newPass ? newPass : currentAuth.password
                 });
 
-                // Update Local State
                 currentUser = newUsername;
                 updateUIState();
-
                 successEl.classList.remove('hidden');
-                
-                // Clear fields
-                document.getElementById('old-password').value = '';
-                document.getElementById('new-password').value = '';
-                document.getElementById('confirm-password').value = '';
-                
-                setTimeout(() => {
-                    window.toggleChangePasswordModal();
-                }, 1500);
+                setTimeout(() => window.toggleChangePasswordModal(), 1500);
 
             } catch (err) {
-                console.error("Change Settings Error:", err);
+                console.error("Error:", err);
                 errorEl.innerText = "เกิดข้อผิดพลาดในการบันทึก";
                 errorEl.classList.remove('hidden');
             }
         }
 
-
-        // --- EXPORT FUNCTION ---
+        // --- EXPORT ---
         window.exportToExcel = function() {
             if (!data || data.length === 0) {
                 alert("ไม่มีข้อมูลสำหรับส่งออก");
@@ -593,8 +659,8 @@
 
             const dateInfo = getThaiMonthYear(currentDate);
             const monthLabel = `${dateInfo.month} ${dateInfo.year}`;
-
-            // Prepare headers - Flat structure for billing
+            
+            // Dynamic headers based on current locations
             const flatHeaders = ["ลำดับ", "รายการ", "รายละเอียด"];
             locations.forEach(loc => {
                 flatHeaders.push(`${loc.label} (1-15)`);
@@ -604,27 +670,19 @@
             flatHeaders.push("รวมทั้งสิ้น");
 
             const rows = [];
-            
-            // Data rows
             data.forEach(item => {
-                const row = [
-                    item.id,
-                    item.desc,
-                    item.detail
-                ];
-
+                const row = [item.id, item.desc, item.detail];
                 let rowTotal = 0;
-
+                
                 locations.forEach(loc => {
+                    // Check if item has this location enabled
                     if (item[loc.key]) {
                         const h1 = parseFloat(getStoredValue(item.id, loc.key, 'h1') || 0);
                         const h2 = parseFloat(getStoredValue(item.id, loc.key, 'h2') || 0);
                         const total = h1 + h2;
-                        
                         row.push(h1 || "");
                         row.push(h2 || "");
                         row.push(total || "");
-                        
                         rowTotal += total;
                     } else {
                         row.push("-");
@@ -632,45 +690,39 @@
                         row.push("-");
                     }
                 });
-
                 row.push(rowTotal || "");
                 rows.push(row);
             });
 
-            // Footer Row (Grand Totals)
+            // Footer
             const footerRow = ["", "รวมทั้งสิ้น (Grand Total)", ""];
             let grandTotalAll = 0;
-            
             locations.forEach(loc => {
-                let sumH1 = 0;
-                let sumH2 = 0;
+                let sumH1 = 0; let sumH2 = 0;
                 data.forEach(item => {
                     if(item[loc.key]){
                         sumH1 += parseFloat(getStoredValue(item.id, loc.key, 'h1') || 0);
                         sumH2 += parseFloat(getStoredValue(item.id, loc.key, 'h2') || 0);
                     }
                 });
-                
                 footerRow.push(sumH1 || "");
                 footerRow.push(sumH2 || "");
                 footerRow.push((sumH1 + sumH2) || "");
-                
                 grandTotalAll += (sumH1 + sumH2);
             });
             footerRow.push(grandTotalAll);
             rows.push(footerRow);
 
-            // Create Worksheet
             const worksheetData = [
-                [`รายงาน Wording Operation ประจำเดือน ${monthLabel}`], // Title
-                [], // Empty row
-                flatHeaders,
+                [`รายงาน Wording Operation ประจำเดือน ${monthLabel}`], 
+                [], 
+                flatHeaders, 
                 ...rows
             ];
 
             const ws = XLSX.utils.aoa_to_sheet(worksheetData);
             
-            // Adjust column widths slightly
+            // Calc dynamic col widths
             const wscols = [{wch:6}, {wch:30}, {wch:30}];
             locations.forEach(() => {
                 wscols.push({wch:10});
@@ -682,19 +734,33 @@
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Operation Data");
-
-            // Save
             XLSX.writeFile(wb, `Wording_Operation_${dateInfo.month}_${dateInfo.year}.xlsx`);
         }
 
-        // --- FIREBASE FUNCTIONS ---
+        // --- CORE DATA & LOGIC ---
 
         function loadData() {
+            // 1. Fetch Locations First
+            const locRef = ref(db, 'wordingOpData/settings/locations');
+            onValue(locRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    locations = snapshot.val();
+                } else {
+                    locations = defaultLocations;
+                    // Auto-seed defaults if empty (first run)
+                    set(locRef, defaultLocations);
+                }
+                
+                // 2. Then trigger structure and values load
+                fetchStructureAndValues();
+            });
+        }
+
+        function fetchStructureAndValues() {
             const valuesRef = ref(db, 'wordingOpData/values');
             onValue(valuesRef, (snapshot) => {
-                const val = snapshot.val();
-                monthlyData = val || {};
-                window.syncUIWithData();
+                monthlyData = snapshot.val() || {};
+                syncUIWithData();
             });
 
             const structureRef = ref(db, 'wordingOpData/structure');
@@ -702,9 +768,8 @@
                 const val = snapshot.val();
                 if (val) {
                     data = val;
-                    renderTable();
                 } else {
-                    // Fallback data if DB empty
+                    // Default Data Seeding
                     data = [
                         { id: 1, desc: "Yard Operation Management", detail: "เช่น Final check + Walkaround", rayong: true, soi5: true, whale: true, nyb: false, mhp2: false },
                         { id: 2, desc: "PDI IN", detail: "ตรวจ PDI ครั้งแรก", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
@@ -724,101 +789,64 @@
                         { id: 16, desc: "Wash for Repair", detail: "ล้างก่อนซ่อม", rayong: false, soi5: false, whale: true, nyb: false, mhp2: false },
                         { id: 17, desc: "Rust", detail: "ขัดสนิม", rayong: true, soi5: true, whale: true, nyb: true, mhp2: true }
                     ];
-                    renderTable();
                 }
+                renderTable();
             });
         }
 
         // --- HELPERS ---
-
-        function getMonthKey(date) {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        }
-
+        function getMonthKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; }
         function getThaiMonthYear(date) {
-            const months = [
-                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-            ];
-            return {
-                month: months[date.getMonth()],
-                year: date.getFullYear() + 543
-            };
+            const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน","กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            return { month: months[date.getMonth()], year: date.getFullYear() + 543 };
         }
-
         function getStoredValue(itemId, locationKey, part) {
             const monthKey = getMonthKey(currentDate);
             const storageKey = `${itemId}_${locationKey}_${part}`;
-            
-            if (monthlyData[monthKey] && monthlyData[monthKey][storageKey] !== undefined) {
-                return monthlyData[monthKey][storageKey];
-            }
+            if (monthlyData[monthKey] && monthlyData[monthKey][storageKey] !== undefined) return monthlyData[monthKey][storageKey];
             return '';
         }
-
         function setStoredValue(itemId, locationKey, part, value) {
             const monthKey = getMonthKey(currentDate);
             const storageKey = `${itemId}_${locationKey}_${part}`;
-
-            if (!monthlyData[monthKey]) {
-                monthlyData[monthKey] = {};
-            }
+            if (!monthlyData[monthKey]) monthlyData[monthKey] = {};
             monthlyData[monthKey][storageKey] = value;
         }
-
         function getCellTotal(item, locKey) {
             const h1 = parseFloat(getStoredValue(item.id, locKey, 'h1') || 0);
             const h2 = parseFloat(getStoredValue(item.id, locKey, 'h2') || 0);
             return h1 + h2;
         }
-
         function getRowTotal(item) {
             let sum = 0;
-            locations.forEach(loc => {
-                if(item[loc.key]) {
-                    sum += getCellTotal(item, loc.key);
-                }
-            });
+            locations.forEach(loc => { if(item[loc.key]) sum += getCellTotal(item, loc.key); });
             return sum;
         }
-
         function getColumnTotal(locKey) {
-            return data.reduce((sum, item) => {
-                return item[locKey] ? sum + getCellTotal(item, locKey) : sum;
-            }, 0);
+            return data.reduce((sum, item) => item[locKey] ? sum + getCellTotal(item, locKey) : sum, 0);
         }
-
         function getGrandTotal() {
             return data.reduce((sum, item) => sum + getRowTotal(item), 0);
         }
-
         function showSavingIndicator() {
             const el = document.getElementById('saving-indicator');
             el.classList.add('show');
-            setTimeout(() => {
-                el.classList.remove('show');
-            }, 1000);
+            setTimeout(() => el.classList.remove('show'), 1000);
         }
 
         // --- UI SYNC ---
         window.syncUIWithData = function() {
             if (isConfigMode) return;
-
             data.forEach(item => {
                 locations.forEach(loc => {
                     if (item[loc.key]) {
-                        // Inputs are only updated if not active to avoid cursor jumping
                         const idH1 = `input-${item.id}-${loc.key}-h1`;
                         const elH1 = document.getElementById(idH1);
-                        if (elH1 && document.activeElement !== elH1) {
-                            elH1.value = getStoredValue(item.id, loc.key, 'h1');
-                        }
+                        if (elH1 && document.activeElement !== elH1) elH1.value = getStoredValue(item.id, loc.key, 'h1');
 
                         const idH2 = `input-${item.id}-${loc.key}-h2`;
                         const elH2 = document.getElementById(idH2);
-                        if (elH2 && document.activeElement !== elH2) {
-                            elH2.value = getStoredValue(item.id, loc.key, 'h2');
-                        }
+                        if (elH2 && document.activeElement !== elH2) elH2.value = getStoredValue(item.id, loc.key, 'h2');
 
                         const cellTotalEl = document.getElementById(`total-${item.id}-${loc.key}`);
                         if (cellTotalEl) {
@@ -827,32 +855,24 @@
                         }
                     }
                 });
-
                 const rowTotalEl = document.getElementById(`row-total-${item.id}`);
                 if (rowTotalEl) {
                     const rTotal = getRowTotal(item);
                     rowTotalEl.innerText = rTotal > 0 ? rTotal.toLocaleString() : '-';
                 }
             });
-
             window.renderFooter();
         }
-
-        // --- USER ACTIONS ---
 
         window.updateDateDisplay = function() {
             const dateInfo = getThaiMonthYear(currentDate);
             const monthEl = document.getElementById('display-month');
             const yearEl = document.getElementById('display-year');
-            
-            monthEl.classList.add('opacity-0');
-            yearEl.classList.add('opacity-0');
-
+            monthEl.classList.add('opacity-0'); yearEl.classList.add('opacity-0');
             setTimeout(() => {
                 monthEl.innerText = dateInfo.month;
                 yearEl.innerText = `พ.ศ. ${dateInfo.year}`;
-                monthEl.classList.remove('opacity-0');
-                yearEl.classList.remove('opacity-0');
+                monthEl.classList.remove('opacity-0'); yearEl.classList.remove('opacity-0');
             }, 200);
         }
 
@@ -863,8 +883,7 @@
         }
 
         window.toggleMode = function() {
-            if (!isLoggedIn) return; // Guard clause
-
+            if (!isLoggedIn) return;
             isConfigMode = !isConfigMode;
             const btn = document.getElementById('btn-toggle-mode');
             const btnText = document.getElementById('btn-mode-text');
@@ -889,21 +908,20 @@
 
         window.addNewItem = function() {
             if (!isLoggedIn) return;
-
             const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
             const newItem = {
                 id: newId,
                 desc: "รายการใหม่",
                 detail: "-",
-                rayong: true, soi5: true, whale: true, nyb: true, mhp2: true
+                // Initialize boolean flags for all current locations as true by default
             };
+            locations.forEach(loc => newItem[loc.key] = true);
             data.push(newItem);
             set(ref(db, 'wordingOpData/structure'), data);
         }
 
         window.deleteItem = function(id) {
             if (!isLoggedIn) return;
-
             if(confirm("ยืนยันการลบรายการ?")) {
                 data = data.filter(d => d.id !== id);
                 set(ref(db, 'wordingOpData/structure'), data);
@@ -912,7 +930,6 @@
 
         window.handleConfigChange = function(id, key) {
             if (!isLoggedIn) return;
-
             const item = data.find(d => d.id === id);
             if (item) {
                 item[key] = !item[key];
@@ -922,7 +939,6 @@
 
         window.handleTextEdit = function(id, field, value) {
             if (!isLoggedIn) return;
-
             const item = data.find(d => d.id === id);
             if (item) {
                 item[field] = value;
@@ -934,14 +950,10 @@
             }
         }
 
-        // --- MAIN INPUT HANDLER ---
         window.handleInputChange = function(id, locKey, part, value) {
-            if (!isLoggedIn) return; // Prevent editing if not logged in
-
-            // 1. Local update
+            if (!isLoggedIn) return;
             setStoredValue(id, locKey, part, value);
             
-            // 2. UI Update
             const item = data.find(d => d.id === id);
             const cellTotalEl = document.getElementById(`total-${id}-${locKey}`);
             if (cellTotalEl) {
@@ -955,15 +967,11 @@
             }
             window.renderFooter();
 
-            // 3. Auto-Save
             const monthKey = getMonthKey(currentDate);
             const storageKey = `${id}_${locKey}_${part}`;
             const path = `wordingOpData/values/${monthKey}/${storageKey}`;
             
-            if (saveTimeoutObj[storageKey]) {
-                clearTimeout(saveTimeoutObj[storageKey]);
-            }
-
+            if (saveTimeoutObj[storageKey]) clearTimeout(saveTimeoutObj[storageKey]);
             saveTimeoutObj[storageKey] = setTimeout(() => {
                 set(ref(db, path), value)
                 .then(() => {
@@ -1005,8 +1013,36 @@
             footer.innerHTML = html;
         }
 
-        // Main Render Function
+        // --- MAIN RENDER ---
         function renderTable() {
+            // 1. Render Headers
+            const thead = document.getElementById('table-head');
+            let headHtml = `
+                <tr>
+                    <th class="px-2 md:px-4 py-3 md:py-4 w-10 md:w-12 text-center sticky-left-0 bg-gray-100 z-30 border-r border-gray-200 text-xs md:text-sm">#</th>
+                    <th class="px-2 md:px-4 py-3 md:py-4 min-w-[150px] md:min-w-[250px] sticky-left-first bg-gray-100 z-30 border-r border-gray-200 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm">Description</th>
+                    <th class="hidden md:table-cell px-4 py-4 min-w-[200px]">รายละเอียด</th>`;
+            
+            locations.forEach(loc => {
+                headHtml += `
+                    <th class="px-1 md:px-2 py-3 md:py-4 text-center min-w-[110px] md:min-w-[140px] bg-${loc.color}-50 text-${loc.color}-800 border-l border-${loc.color}-100">
+                        <div class="flex flex-col items-center">
+                            <span class="text-xs md:text-sm font-bold truncate max-w-[120px]">${loc.label}</span>
+                            <div class="header-subtext flex gap-0.5 md:gap-1 text-[9px] md:text-[10px] font-normal mt-1 opacity-70">
+                                <span class="w-8 md:w-10">1-15</span><span class="w-8 md:w-10">16-end</span><span class="w-6 md:w-8 font-bold">Sum</span>
+                            </div>
+                        </div>
+                    </th>`;
+            });
+
+            headHtml += `
+                    <th id="header-row-total" class="px-2 md:px-4 py-3 md:py-4 w-16 md:w-24 text-center bg-gray-200 text-gray-800 font-bold sticky-right-0 z-30 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] text-xs md:text-sm">
+                        Total
+                    </th>
+                </tr>`;
+            thead.innerHTML = headHtml;
+
+            // 2. Render Body
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
 
@@ -1022,23 +1058,16 @@
                 }
                 firstCol += `</td>`;
 
-                let descCol = '';
-                if (isConfigMode) {
-                    descCol = `<td class="px-2 py-2 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)]"><input type="text" value="${item.desc}" oninput="window.handleTextEdit(${item.id}, 'desc', this.value)" class="w-full px-2 py-1 border border-indigo-200 rounded text-indigo-700 bg-indigo-50 text-xs md:text-sm"></td>`;
-                } else {
-                    descCol = `<td class="px-2 md:px-4 py-3 font-medium text-gray-900 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm truncate max-w-[150px] md:max-w-none" title="${item.desc}">${item.desc}</td>`;
-                }
+                let descCol = isConfigMode 
+                    ? `<td class="px-2 py-2 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)]"><input type="text" value="${item.desc}" oninput="window.handleTextEdit(${item.id}, 'desc', this.value)" class="w-full px-2 py-1 border border-indigo-200 rounded text-indigo-700 bg-indigo-50 text-xs md:text-sm"></td>`
+                    : `<td class="px-2 md:px-4 py-3 font-medium text-gray-900 sticky-left-first bg-inherit z-10 border-r border-gray-100 shadow-[5px_0_10px_-5px_rgba(0,0,0,0.05)] text-xs md:text-sm truncate max-w-[150px] md:max-w-none" title="${item.desc}">${item.desc}</td>`;
 
-                let detailCol = '';
-                if (isConfigMode) {
-                    detailCol = `<td class="hidden md:table-cell px-2 py-2"><input type="text" value="${item.detail}" oninput="window.handleTextEdit(${item.id}, 'detail', this.value)" class="w-full px-2 py-1 border border-gray-200 rounded text-gray-600 text-xs"></td>`;
-                } else {
-                    detailCol = `<td class="hidden md:table-cell px-4 py-3 text-gray-500 text-xs leading-relaxed max-w-xs truncate" title="${item.detail}">${item.detail}</td>`;
-                }
+                let detailCol = isConfigMode
+                    ? `<td class="hidden md:table-cell px-2 py-2"><input type="text" value="${item.detail}" oninput="window.handleTextEdit(${item.id}, 'detail', this.value)" class="w-full px-2 py-1 border border-gray-200 rounded text-gray-600 text-xs"></td>`
+                    : `<td class="hidden md:table-cell px-4 py-3 text-gray-500 text-xs leading-relaxed max-w-xs truncate" title="${item.detail}">${item.detail}</td>`;
 
                 let html = firstCol + descCol + detailCol;
 
-                // Input Disabled State Logic
                 const inputDisabledAttr = isLoggedIn ? '' : 'disabled';
                 const inputBgClass = isLoggedIn ? 'bg-white hover:border-blue-300' : 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent';
 
@@ -1089,7 +1118,7 @@
 
         window.onload = function() {
             window.updateDateDisplay();
-            updateUIState(); // Set initial UI (Read only)
+            updateUIState();
             window.addEventListener('resize', window.renderFooter);
             loadData();
         };
